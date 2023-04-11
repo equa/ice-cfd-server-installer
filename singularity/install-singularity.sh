@@ -2,7 +2,7 @@
 
 set -e
 
-INSTALL_PREFIX=${INSTALL_PREFIX:-/usr/local}
+INSTALL_PREFIX=$CFD_SRV_HOME
 SGTY_VERSION=3.11.1
 SCRIPT_DIR=$(realpath $(dirname $0))
 

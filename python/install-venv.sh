@@ -2,7 +2,7 @@
 
 set -ex
 
-INSTALL_PREFIX=${INSTALL_PREFIX:-/usr/local}
+INSTALL_PREFIX=$CFD_SRV_HOME
 
 SCRIPT_PATH=$(dirname $(realpath $0))
 

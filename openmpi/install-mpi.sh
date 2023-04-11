@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # this script is used in mpi.def and should also be run standalone on host
 OPENMPI_VERSION="4.1.4"
-INSTALL_PREFIX=${INSTALL_PREFIX:-/usr/local}
+INSTALL_PREFIX=$CFD_SRV_HOME
 WM_NCOMPPROCS="16"
 
 cd /tmp

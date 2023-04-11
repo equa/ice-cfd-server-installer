@@ -2,7 +2,7 @@
 
 set -e
 
-INSTALL_PREFIX=${INSTALL_PREFIX:-/usr/local}
+INSTALL_PREFIX=$CFD_SRV_HOME
 
 cd $(dirname $(realpath $0))
 
