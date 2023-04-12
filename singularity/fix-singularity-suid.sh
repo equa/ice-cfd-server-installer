@@ -17,7 +17,10 @@ EOF
 
 read -p "Continue? (Otherwise press Ctrl-C)"
 
+set -x
+sudo chown root:root $SUID_FILE
 sudo chmod u+s $SUID_FILE
+set +x
 
 echo "Done:"
 ls -l $SUID_FILE

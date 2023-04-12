@@ -1,10 +1,17 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 INSTALL_PREFIX=$CFD_SRV_HOME
 
 SCRIPT_PATH=$(dirname $(realpath $0))
+
+if [ -d $INSTALL_PREFIX/venv ]
+then
+    read -p "A virtual python env exists already. Re-install?" __ANS
+    [[ "$__ANS" == y ]] || exit 0
+    rm -rf $INSTALL_PREFIX/venv
+fi
 
 cd $INSTALL_PREFIX
 

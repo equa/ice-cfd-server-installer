@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ex
+set -e
 
 if [[ $(id -u) == 0 ]]
 then
@@ -10,24 +10,67 @@ fi
 
 if [[ -z "$CFD_SRV_HOME" ]]
 then
-    echo "INSTALL_RREFIX needs to be set to existing directory."
+    echo "CFD_SRV_HOME needs to be set to existing directory."
+    echo "E.g. export CFD_SRV_HOME=$HOME/cfd_server"
     exit 1
 fi
 
-nats/install-nats-server.sh install
+INSTALL_LOG=/tmp/cfd_install_$(date +%y%m%d-%H%M%S).log
+[[ -w $INSTALL_LOG ]] && rm ${INSTALL_LOG}
 
-cloudmb/install-cloudmb.sh install
+function run_installer()
+{
+    eval $1 install
+    # | sed 's/\(.*\)/$(date) \1/' >>  $INSTALL_LOG
+}
 
-python/install-venv.sh install
+[[ -d "$CFD_SRV_HOME/bin" ]] || mkdir -p $CFD_SRV_HOME/bin
 
-python/cfd/install-cfd-python.sh install
+run_installer nats/install-nats-server.sh
 
-python/file-server/install-file-server.sh install
+run_installer cloudmb/install-cloudmb.sh
 
-singularity/install-singularity.sh install
+run_installer python/install-venv.sh
 
-openmpi/install-mpi.sh install
+run_installer python/cfd/install-cfd-python.sh
 
-openfoam/install-openfoam.sh install
+run_installer python/file-server/install-file-server.sh
+
+run_installer singularity/install-singularity.sh
+
+run_installer openmpi/install-mpi.sh
+
+run_installer openfoam/install-openfoam.sh
 
 cp -v bin/cfd-servers-start.sh $CFD_SRV_HOME/bin/.
+
+cat << EOF > $HOME/.icecfd
+export CFD_SRV_HOME=$CFD_SRV_HOME
+PATH=\$CFD_SRV_HOME/bin:\$PATH
+export LD_LIBRARY_PATH=\$CFD_SRV_HOME/lib
+export CFD_HOME=\$HOME/cfd_run
+EOF
+
+if ! grep -q "\.icecfd" $HOME/.bashrc
+then
+    echo -e "\nsource \$HOME/.icecfd" >> $HOME/.bashrc
+fi
+
+cat << EOF
+
+
+    Almost Done.
+    All files should be in place and ~/.bashrc is updated.
+
+    Now, the permissions for a Singularity executable needs to be modified
+    to let Singularity containers run with some root privileges.
+    To do this, execute the following two commands as *another* user that has
+    sudo privileges (or as root).
+
+    export CFD_SRV_HOME=$CFD_SRV_HOME
+    $PWD/singularity/fix-singularity-suid.sh
+
+    It is *strongly* adviced that the current user does *not* have privileges
+    to execute commands using sudo.
+
+EOF

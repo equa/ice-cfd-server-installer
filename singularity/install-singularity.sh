@@ -6,6 +6,12 @@ INSTALL_PREFIX=$CFD_SRV_HOME
 SGTY_VERSION=3.11.1
 SCRIPT_DIR=$(realpath $(dirname $0))
 
+if [ -x $INSTALL_PREFIX/bin/singularity ]
+then
+    read -p "Open singularity seems to be installed already. Re-install?" __ANS
+    [[ "$__ANS" == y ]] || exit 0
+fi
+
 export GOPATH=${HOME}/go
 if [[ -d "$GOPATH" && -d "${INSTALL_PREFIX}/go/bin" ]]
 then
