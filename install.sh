@@ -45,10 +45,15 @@ run_installer openfoam/install-openfoam.sh
 cp -v bin/cfd-servers-start.sh $CFD_SRV_HOME/bin/.
 
 cat << EOF > $HOME/.icecfd
+# Edit CFD_N_CORES as appropriate. Remove it to use all available cores.
+export CFD_N_CORES=16
+
+# Usually do not edit below this line
 export CFD_SRV_HOME=$CFD_SRV_HOME
 PATH=\$CFD_SRV_HOME/bin:\$PATH
 export LD_LIBRARY_PATH=\$CFD_SRV_HOME/lib
 export CFD_HOME=\$HOME/cfd_run
+export SIF_CONTAINER=\$CFD_SRV_HOME/bin/openfoam.sif
 EOF
 
 if ! grep -q "\.icecfd" $HOME/.bashrc
@@ -59,7 +64,7 @@ fi
 cat << EOF
 
 
-    Almost Done.
+    Almost done, but READ THIS!
     All files should be in place and ~/.bashrc is updated.
 
     Now, the permissions for a Singularity executable needs to be modified

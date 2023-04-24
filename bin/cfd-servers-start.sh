@@ -33,7 +33,7 @@ PID_LOG=$LOG_DIR/pids
 
 function check-components()
 {
-    for s in bin/nats-server bin/CloudMB file-server/server.py
+    for s in bin/nats-server bin/CloudMB bin/mpirun file-server/server.py
     do
         if ! [[ -x "$CFD_SRV_HOME/$s" ]]
         then
@@ -53,21 +53,42 @@ function port_busy()
     fi
 }
 
+function stop_servers()
+{
+    cat $PID_LOG | xargs kill
+    sleep 1
+    cat $PID_LOG | xargs kill -9 > /dev/null 2>&1
+}
+
+if [[ "$1" == stop ]]
+then
+    set +e
+    stop_servers
+    exit 0
+fi
+
 port_busy $NATS_PORT
 
 port_busy $FS_PORT
 
 check-components
 
+if [[ "$1" == check ]]
+then
+    exit 0
+fi
+
 [[ -d "$LOG_DIR" ]] || mkdir "$LOG_DIR"
+
+echo -e "Log files and PID file are written in $LOG_DIR\n"
 
 $BIN/nats-server -p $NATS_PORT > $LOG_DIR/nats.log 2>&1 &
 echo $! > $PID_LOG
 
 echo -e "Starting nats server"
-echo -e "Taking a nap to let the nats server establish"
+echo -e "Taking a 3 s nap to let the nats server establish"
 
-sleep 2
+sleep 3
 
 echo -e "Starting message broker"
 $BIN/CloudMB -s nats://localhost:$NATS_PORT $NATS_STARTUP_TOPIC > $LOG_DIR/cloudmb.log 2>&1 &
@@ -77,6 +98,6 @@ echo -e "Activate virtual environment"
 source $VENV/bin/activate
 
 echo -e "Starting file-server"
-$CFD_SRV_HOME/file-server/server.py > $LOG_DIR/cfd-file-server.log 2>&1 &
+$CFD_SRV_HOME/file-server/server.py $FS_PORT > $LOG_DIR/cfd-file-server.log 2>&1 &
 echo $! >> $PID_LOG
 
