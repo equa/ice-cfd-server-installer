@@ -25,7 +25,6 @@ function ubuntu()
         libseccomp-dev \
         wget \
         pkg-config \
-        git \
         cryptsetup-bin
 }
 
@@ -48,5 +47,17 @@ do
     then
         echo -e "Installing dependencies for $dist"
         $dist
+    elif [ -x /usr/bin/dnf ]
+    then
+        echo -e "Installing dependencies with dnf"
+        fedora
+    elif [ -x /usr/bin/yum ]
+    then
+        echo -e "Installing dependencies with yum"
+        centos
+    elif [ -x /usr/bin/apt ]
+    then
+        echo -e "Installing dependencies with apt"
+        ubuntu
     fi
 done
