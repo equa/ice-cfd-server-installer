@@ -26,7 +26,7 @@ FS_PORT=4445
 
 NATS_STARTUP_TOPIC=cfd.server.startup
 
-LOG_DIR=/tmp/cfd-server-logs
+LOG_DIR=$SERVER_HOME/logs
 
 PID_LOG=$LOG_DIR/pids
 
@@ -85,19 +85,19 @@ echo -e "Log files and PID file are written in $LOG_DIR\n"
 $BIN/nats-server -p $NATS_PORT > $LOG_DIR/nats.log 2>&1 &
 echo $! > $PID_LOG
 
-echo -e "Starting nats server"
+echo -e "Starting nats server on port $NATS_PORT"
 echo -e "Taking a 3 s nap to let the nats server establish"
 
 sleep 3
 
-echo -e "Starting message broker"
+echo -e "Activate virtual python environment"
+source $VENV/bin/activate
+
+echo -e "Starting message broker on topic $NATS_STARTUP_TOPIC"
 $BIN/CloudMB -s nats://localhost:$NATS_PORT $NATS_STARTUP_TOPIC > $LOG_DIR/cloudmb.log 2>&1 &
 echo $! >> $PID_LOG
 
-echo -e "Activate virtual environment"
-source $VENV/bin/activate
-
-echo -e "Starting file-server"
+echo -e "Starting file-server on port $FS_PORT"
 $CFD_SRV_HOME/file-server/server.py $FS_PORT > $LOG_DIR/cfd-file-server.log 2>&1 &
 echo $! >> $PID_LOG
 

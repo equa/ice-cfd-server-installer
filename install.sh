@@ -11,7 +11,7 @@ fi
 if [[ -z "$CFD_SRV_HOME" ]]
 then
     echo "CFD_SRV_HOME needs to be set to existing directory."
-    echo "E.g. export CFD_SRV_HOME=$HOME/cfd_server"
+    echo "E.g. export CFD_SRV_HOME=$HOME/cfd-server"
     exit 1
 fi
 

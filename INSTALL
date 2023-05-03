@@ -1,0 +1,62 @@
+## Log in to the server host as a user with root access (sudo).
+
+## Download ice-cfd-server-installer.tgz to /tmp/.
+
+cd /tmp
+curl https://.../ice-cfd-server-installer.tgz
+
+
+## Unpack the intaller in the /tmp directory, make sure that it is readable to
+## all users.
+
+cd /tmp
+tar xzf /tmp/ice-cfd-server-installer.tgz
+ls -l ice-cfd-installer
+chmod a+rX ice-cfd-installer
+
+
+## Run script to install system dependencies (as root).
+
+sudo /tmp/ice-cfd-installer/install-dependencies.sh
+
+
+## Create an un-privileged user named e.g. "cfd" and \become\ this user.
+
+sudo useradd -u 4000 -m -s /bin/bash -g users cfd
+sudo su - cfd
+
+
+## Define the cfd-server installation root and run the install script.
+## The install.sh script must be run from the installer directory.
+## This will take time and involves downloading and compiling software.
+
+mkdir ~/cfd-server
+export CFD_SRV_HOME=~/cfd-server
+cd /tmp/ice-cfd-installer/ice-cfd-installer
+./install.sh
+
+
+## Read the information at the end of the installation output and finish by
+## executing the final step as root. First log out to the privileged user,
+## then, using sudo to gain root privileges, define the installation directory
+## as before and run the root fix script.
+
+exit && whoami
+sudo sh -c 'export CFD_SRV_HOME=~cfd/cfd-server && /tmp/ice-cfd-installer/singularity/fix-singularity-suid.sh'
+
+
+## Log back in as the cfd user and test some aspects of the installation. All
+## tests must be OK.
+
+sudo su - cfd
+/tmp/ice-cfd-installer/test-installation.sh
+
+
+## Then try to start and stop the servers as the cfd user
+
+cfd-servers-start.sh
+
+
+## And stop the servers
+
+cfd-servers-start.sh stop
