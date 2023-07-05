@@ -33,7 +33,7 @@ PID_LOG=$LOG_DIR/pids
 
 function check-components()
 {
-    for s in bin/nats-server bin/CloudMB bin/mpirun file-server/server.py
+    for s in bin/nats-server bin/CloudMB bin/mpirun file-server/file-server.py
     do
         if ! [[ -x "$CFD_SRV_HOME/$s" ]]
         then
@@ -82,10 +82,9 @@ fi
 
 echo -e "Log files and PID file are written in $LOG_DIR\n"
 
+echo -e "Starting nats server on port $NATS_PORT"
 $BIN/nats-server -p $NATS_PORT > $LOG_DIR/nats.log 2>&1 &
 echo $! > $PID_LOG
-
-echo -e "Starting nats server on port $NATS_PORT"
 echo -e "Taking a 3 s nap to let the nats server establish"
 
 sleep 3
@@ -98,6 +97,9 @@ $BIN/CloudMB -s nats://localhost:$NATS_PORT $NATS_STARTUP_TOPIC > $LOG_DIR/cloud
 echo $! >> $PID_LOG
 
 echo -e "Starting file-server on port $FS_PORT"
-$CFD_SRV_HOME/file-server/server.py $FS_PORT > $LOG_DIR/cfd-file-server.log 2>&1 &
+$CFD_SRV_HOME/file-server/file-server.py $FS_PORT > $LOG_DIR/cfd-file-server.log 2>&1 &
 echo $! >> $PID_LOG
+
+echo -e "Now, the following servers are running:"
+ps -ef|grep -E "Cloud|nats|file-server.py" |grep -v grep
 

@@ -19,5 +19,8 @@ cd ./file-server
 git archive --format=tar --prefix=./ --output=$CWD/file-server.tar HEAD
 
 cd $CWD
-tar xf file-server.tar ./requirements.txt
-mv requirements.txt pip-requirements.txt
+tar --transform='s/requirements/pip-requirements/' \
+    -xvf file-server.tar ./requirements.txt
+
+[[ $? == 0 ]] || { echo "Error extracting from file-server.tgz"; exit 1; }
+

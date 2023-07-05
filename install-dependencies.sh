@@ -6,6 +6,7 @@ function fedora()
 {
     sudo dnf groupinstall -y 'C Development Tools and Libraries' && \
     sudo dnf install -y \
+        python3-pip \
     	openssl-devel \
     	libuuid-devel \
     	libseccomp-devel \
@@ -17,6 +18,8 @@ function fedora()
 function ubuntu()
 {
     sudo apt-get install -y \
+        python3-pip \
+        python3-venv \
         libglib2.0-dev \
         build-essential \
         uuid-dev \
@@ -32,6 +35,7 @@ function centos()
 {
     sudo yum groupinstall -y 'Development Tools' && \
     sudo yum install -y \
+        python3-pip \
         glib2-devel \
     	openssl-devel \
     	libuuid-devel \
